@@ -1,7 +1,4 @@
-body {
-    *
-
-{
+* {
     box-sizing: border-box;
 }
 
@@ -325,5 +322,4 @@ footer {
     td {
         padding: 0.45rem;
     }
-}
 }
