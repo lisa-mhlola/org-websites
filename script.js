@@ -13,6 +13,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+const contactRecipient = "info@greenglow.example";
+
 function highlightCurrentPage() {
     const currentPage = location.pathname.split("/").pop() || "index.html";
 
@@ -239,6 +241,19 @@ const categoryNames = {
     deep: "Deep Cleaning"
 };
 
+const sizeMultipliers = {
+    small: 1,
+    medium: 1.4,
+    large: 1.8
+};
+
+const frequencyDetails = {
+    once: { discount: 0, visits: 1 },
+    weekly: { discount: 0.15, visits: 4 },
+    fortnightly: { discount: 0.1, visits: 2 },
+    monthly: { discount: 0.05, visits: 1 }
+};
+
 function loadServicePackages() {
     return new Promise((resolve) => {
         setTimeout(() => resolve(servicePackages), 400);
@@ -361,10 +376,10 @@ function createServiceCard(item, query) {
     meta.className = "service-meta";
 
     const duration = document.createElement("span");
-    duration.textContent = item.hours + (item.hours === 1 ? " hour" : " hours");
+    duration.textContent = formatHours(item.hours);
 
     const price = document.createElement("strong");
-    price.textContent = "From R" + item.price.toLocaleString("en-ZA");
+    price.textContent = "From " + formatRand(item.price);
 
     meta.append(duration, price);
 
@@ -423,222 +438,33 @@ function createEmptyMessage(searchTerm, onClear) {
     return box;
 }
 
-function openModal(title, content) {
+function makeElement(tag, className, text) {
+    const element = document.createElement(tag);
+    if (className) element.className = className;
+    if (text !== undefined) element.textContent = text;
+    return element;
+}
+
+function openModal(title, content, actions) {
     let modal = document.querySelector(".modal");
 
     if (!modal) {
-        modal = document.createElement("dialog");
-        modal.className = "modal";
+        modal = makeElement("dialog", "modal");
         modal.setAttribute("aria-labelledby", "modal-title");
 
-        const header = document.createElement("div");
-        header.className = "modal-header";
+        const header = makeElement("div", "modal-header");
 
-        const heading = document.createElement("h2");
+        const heading = makeElement("h2");
         heading.id = "modal-title";
 
-        const closeButton = document.createElement("button");
+        const closeButton = makeElement("button", "modal-close", "×");
         closeButton.type = "button";
-        closeButton.className = "modal-close";
         closeButton.setAttribute("aria-label", "Close");
-        closeButton.textContent = "×";
+        closeButton.addEventListener("click", () => modal.close());
 
         header.append(heading, closeButton);
-
-        const body = document.createElement("div");
-        body.className = "modal-body";
-
-        const footer = document.createElement("div");
-        footer.className = "modal-footer";
-
-        const okButton = document.createElement("button");
-        okButton.type = "button";
-        okButton.className = "modal-ok";
-        okButton.textContent = "OK";
-        okButton.autofocus = true;
-        footer.appendChild(okButton);
-
-        modal.append(header, body, footer);
+        modal.append(header, makeElement("div", "modal-body"), makeElement("div", "modal-footer"));
         document.body.appendChild(modal);
 
-        closeButton.addEventListener("click", () => modal.close());
-        okButton.addEventListener("click", () => modal.close());
-
         modal.addEventListener("click", (event) => {
-            if (event.target === modal) modal.close();
-        });
-    }
-
-    modal.querySelector("#modal-title").textContent = title;
-    modal.querySelector(".modal-body").replaceChildren(content);
-    modal.showModal();
-}
-
-function setUpEnquiryForm() {
-    const serviceSelect = document.getElementById("service");
-    if (!serviceSelect) return;
-
-    const form = serviceSelect.closest("form");
-    const dateInput = document.getElementById("date");
-    const message = document.getElementById("message");
-
-    if (dateInput) dateInput.min = todayAsISO();
-
-    const params = new URLSearchParams(location.search);
-    const requestedService = params.get("service");
-    const requestedPackage = params.get("package");
-
-    if (requestedService && Array.from(serviceSelect.options).some((option) => option.value === requestedService)) {
-        serviceSelect.value = requestedService;
-    }
-
-    if (requestedPackage && message) {
-        message.value = "I am interested in the " + requestedPackage + " package.";
-    }
-
-    if (message) addCharacterCounter(message, 500);
-
-    serviceSelect.addEventListener("change", () => toggleOtherField(serviceSelect));
-
-    form.addEventListener("reset", () => {
-        setTimeout(() => toggleOtherField(serviceSelect), 0);
-    });
-
-    form.addEventListener("submit", (event) => {
-        event.preventDefault();
-
-        const name = document.getElementById("name").value.trim();
-
-        const content = document.createElement("div");
-        const intro = document.createElement("p");
-        intro.textContent = "Thank you, " + name + ". Here is a summary of your enquiry:";
-        content.append(intro, buildSummary(form));
-
-        openModal("Enquiry received", content);
-        form.reset();
-    });
-}
-
-function toggleOtherField(select) {
-    const existing = document.getElementById("other-service-wrapper");
-
-    if (select.value === "other" && !existing) {
-        const wrapper = document.createElement("p");
-        wrapper.id = "other-service-wrapper";
-        wrapper.className = "fade-in";
-
-        const label = document.createElement("label");
-        label.htmlFor = "other-service";
-        label.textContent = "Please describe the service you need:";
-
-        const input = document.createElement("input");
-        input.type = "text";
-        input.id = "other-service";
-        input.name = "other-service";
-        input.required = true;
-
-        wrapper.append(label, document.createElement("br"), input);
-        select.closest("p").after(wrapper);
-        input.focus();
-    } else if (select.value !== "other" && existing) {
-        existing.remove();
-    }
-}
-
-function addCharacterCounter(textarea, max) {
-    textarea.maxLength = max;
-
-    const counter = document.createElement("small");
-    counter.className = "char-counter";
-    textarea.after(counter);
-
-    const update = () => {
-        const used = textarea.value.length;
-        counter.textContent = used + " / " + max + " characters";
-        counter.classList.toggle("near-limit", used > max * 0.9);
-    };
-
-    textarea.addEventListener("input", update);
-    textarea.form.addEventListener("reset", () => setTimeout(update, 0));
-    update();
-}
-
-function buildSummary(form) {
-    const list = document.createElement("dl");
-    list.className = "summary-list";
-
-    Array.from(form.elements).forEach((field) => {
-        if (!field.name || !field.value.trim()) return;
-
-        const label = form.querySelector('label[for="' + field.id + '"]');
-
-        const term = document.createElement("dt");
-        term.textContent = label ? label.textContent.trim().replace(/:$/, "") : field.name;
-
-        const detail = document.createElement("dd");
-        if (field.tagName === "SELECT") {
-            detail.textContent = field.options[field.selectedIndex].text.trim();
-        } else if (field.type === "date") {
-            detail.textContent = new Date(field.value + "T00:00").toLocaleDateString("en-ZA", {
-                day: "numeric",
-                month: "long",
-                year: "numeric"
-            });
-        } else {
-            detail.textContent = field.value.trim();
-        }
-
-        list.append(term, detail);
-    });
-
-    return list;
-}
-
-function todayAsISO() {
-    const now = new Date();
-    const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
-    return local.toISOString().split("T")[0];
-}
-
-function setUpContactForm() {
-    const nameInput = document.getElementById("contact-name");
-    if (!nameInput) return;
-
-    const form = nameInput.closest("form");
-    const message = document.getElementById("contact-message");
-    if (message) addCharacterCounter(message, 500);
-
-    form.addEventListener("submit", (event) => {
-        event.preventDefault();
-
-        const name = nameInput.value.trim();
-        const email = document.getElementById("contact-email").value.trim();
-
-        const content = document.createElement("p");
-        content.textContent = "Thanks, " + name + ". We will reply to " + email + " within one working day.";
-
-        openModal("Message sent", content);
-        form.reset();
-    });
-}
-
-function showOpeningStatus() {
-    const table = document.querySelector("table");
-    if (!table) return;
-
-    const parts = new Intl.DateTimeFormat("en-US", {
-        timeZone: "Africa/Johannesburg",
-        weekday: "long",
-        hour: "2-digit",
-        minute: "2-digit",
-        hourCycle: "h23"
-    }).formatToParts(new Date());
-
-    const get = (type) => parts.find((part) => part.type === type).value;
-    const today = get("weekday");
-    const minutesNow = Number(get("hour")) * 60 + Number(get("minute"));
-
-    let isOpen = false;
-    let statusText = "Closed now";
-
-    table.querySelectorAll("tbody tr").forEach((row) =>
+            if    table.querySelectorAll("tbody tr").forEach((row) =>
