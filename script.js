@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     highlightCurrentPage();
     buildAccordion();
     buildTabs();
+    setUpServiceListings();
     setUpEnquiryForm();
     setUpContactForm();
     showOpeningStatus();
@@ -145,6 +146,283 @@ function buildTabs() {
     });
 }
 
+const servicePackages = [
+    {
+        name: "Standard Home Clean",
+        category: "home",
+        price: 450,
+        hours: 3,
+        description: "A full clean of kitchens, bathrooms, bedrooms and living areas, including dusting and floors."
+    },
+    {
+        name: "Apartment Express Clean",
+        category: "home",
+        price: 350,
+        hours: 2,
+        description: "A quick, thorough clean for flats and small apartments of up to two bedrooms."
+    },
+    {
+        name: "Family Home Clean",
+        category: "home",
+        price: 650,
+        hours: 4,
+        description: "A larger clean for busy family homes with three or more bedrooms."
+    },
+    {
+        name: "Weekly Maintenance Clean",
+        category: "home",
+        price: 380,
+        hours: 2,
+        description: "A regular weekly visit that keeps your home tidy between bigger cleans."
+    },
+    {
+        name: "Small Office Clean",
+        category: "office",
+        price: 600,
+        hours: 3,
+        description: "Desks, floors, bins and shared areas cleaned for offices of up to ten people."
+    },
+    {
+        name: "Reception and Boardroom Clean",
+        category: "office",
+        price: 500,
+        hours: 2,
+        description: "Keeps the spaces your clients see first spotless and professional."
+    },
+    {
+        name: "Office Kitchen and Staff Area Clean",
+        category: "office",
+        price: 450,
+        hours: 2,
+        description: "Kitchens, fridges, microwaves and break areas cleaned and sanitised."
+    },
+    {
+        name: "After-Hours Office Clean",
+        category: "office",
+        price: 850,
+        hours: 4,
+        description: "A full office clean done after work hours, so your team is never disturbed."
+    },
+    {
+        name: "Move-In or Move-Out Clean",
+        category: "deep",
+        price: 1200,
+        hours: 6,
+        description: "A top-to-bottom clean of an empty property, including inside cupboards and appliances."
+    },
+    {
+        name: "Spring Deep Clean",
+        category: "deep",
+        price: 950,
+        hours: 5,
+        description: "A detailed clean of hard-to-reach areas, skirting boards, windows and fittings."
+    },
+    {
+        name: "Kitchen Deep Clean",
+        category: "deep",
+        price: 550,
+        hours: 3,
+        description: "Degreasing of stoves, ovens, extractor fans, tiles and cupboard fronts."
+    },
+    {
+        name: "Bathroom Deep Clean",
+        category: "deep",
+        price: 400,
+        hours: 2,
+        description: "Descaling of showers, taps and tiles, plus a scrub of grout and fittings."
+    }
+];
+
+const categoryNames = {
+    home: "Home Cleaning",
+    office: "Office Cleaning",
+    deep: "Deep Cleaning"
+};
+
+function loadServicePackages() {
+    return new Promise((resolve) => {
+        setTimeout(() => resolve(servicePackages), 400);
+    });
+}
+
+function setUpServiceListings() {
+    const list = document.getElementById("service-list");
+    if (!list) return;
+
+    const searchInput = document.getElementById("service-search");
+    const categorySelect = document.getElementById("service-category");
+    const sortSelect = document.getElementById("service-sort");
+    const countText = document.getElementById("service-count");
+    const loadMoreButton = document.getElementById("load-more");
+    const pageSize = 6;
+    let visibleCount = pageSize;
+    let packages = [];
+
+    const loading = document.createElement("p");
+    loading.className = "service-loading";
+    loading.textContent = "Loading services...";
+    list.replaceChildren(loading);
+    countText.textContent = "";
+
+    function getResults() {
+        const query = searchInput.value.trim().toLowerCase();
+        const category = categorySelect.value;
+
+        const matches = packages.filter((item) => {
+            const matchesCategory = category === "all" || item.category === category;
+            const searchText = (item.name + " " + item.description + " " + categoryNames[item.category]).toLowerCase();
+            return matchesCategory && searchText.includes(query);
+        });
+
+        return sortPackages(matches, sortSelect.value);
+    }
+
+    function render(animateFrom) {
+        const query = searchInput.value.trim().toLowerCase();
+        const results = getResults();
+        const shown = results.slice(0, visibleCount);
+
+        if (results.length === 0) {
+            list.replaceChildren(createEmptyMessage(searchInput.value.trim(), clearFilters));
+            countText.textContent = "No services found";
+            loadMoreButton.hidden = true;
+            return;
+        }
+
+        const cards = shown.map((item, index) => {
+            const card = createServiceCard(item, query);
+            if (animateFrom !== undefined && index >= animateFrom) {
+                card.classList.add("is-new");
+                card.style.animationDelay = (index - animateFrom) * 60 + "ms";
+            }
+            return card;
+        });
+
+        list.replaceChildren(...cards);
+        countText.textContent = "Showing " + shown.length + " of " + results.length +
+            (results.length === 1 ? " service" : " services");
+        loadMoreButton.hidden = shown.length >= results.length;
+    }
+
+    function resetAndRender() {
+        visibleCount = pageSize;
+        render();
+    }
+
+    function clearFilters() {
+        searchInput.value = "";
+        categorySelect.value = "all";
+        resetAndRender();
+        searchInput.focus();
+    }
+
+    searchInput.addEventListener("input", resetAndRender);
+    categorySelect.addEventListener("change", resetAndRender);
+    sortSelect.addEventListener("change", resetAndRender);
+
+    loadMoreButton.addEventListener("click", () => {
+        const previousCount = visibleCount;
+        visibleCount += pageSize;
+        render(previousCount);
+    });
+
+    loadServicePackages().then((data) => {
+        packages = data;
+        render(0);
+    });
+}
+
+function sortPackages(items, sortBy) {
+    const sorted = items.slice();
+
+    if (sortBy === "price-low") sorted.sort((a, b) => a.price - b.price);
+    if (sortBy === "price-high") sorted.sort((a, b) => b.price - a.price);
+    if (sortBy === "duration") sorted.sort((a, b) => a.hours - b.hours);
+    if (sortBy === "name") sorted.sort((a, b) => a.name.localeCompare(b.name));
+
+    return sorted;
+}
+
+function createServiceCard(item, query) {
+    const card = document.createElement("article");
+    card.className = "service-card";
+
+    const badge = document.createElement("span");
+    badge.className = "service-badge " + item.category;
+    badge.textContent = categoryNames[item.category];
+
+    const title = document.createElement("h3");
+    title.append(highlightText(item.name, query));
+
+    const description = document.createElement("p");
+    description.append(highlightText(item.description, query));
+
+    const meta = document.createElement("p");
+    meta.className = "service-meta";
+
+    const duration = document.createElement("span");
+    duration.textContent = item.hours + (item.hours === 1 ? " hour" : " hours");
+
+    const price = document.createElement("strong");
+    price.textContent = "From R" + item.price.toLocaleString("en-ZA");
+
+    meta.append(duration, price);
+
+    const link = document.createElement("a");
+    link.className = "service-link";
+    link.href = "enquiry.html?" + new URLSearchParams({ service: item.category, package: item.name });
+    link.textContent = "Enquire about this";
+
+    card.append(badge, title, description, meta, link);
+    return card;
+}
+
+function highlightText(text, query) {
+    const fragment = document.createDocumentFragment();
+
+    if (!query) {
+        fragment.append(text);
+        return fragment;
+    }
+
+    const lowerText = text.toLowerCase();
+    let start = 0;
+    let index = lowerText.indexOf(query);
+
+    while (index !== -1) {
+        fragment.append(text.slice(start, index));
+
+        const mark = document.createElement("mark");
+        mark.textContent = text.slice(index, index + query.length);
+        fragment.append(mark);
+
+        start = index + query.length;
+        index = lowerText.indexOf(query, start);
+    }
+
+    fragment.append(text.slice(start));
+    return fragment;
+}
+
+function createEmptyMessage(searchTerm, onClear) {
+    const box = document.createElement("div");
+    box.className = "service-empty";
+
+    const message = document.createElement("p");
+    message.textContent = searchTerm
+        ? "No services match \"" + searchTerm + "\"."
+        : "No services match these filters.";
+
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "clear-filters";
+    button.textContent = "Clear search";
+    button.addEventListener("click", onClear);
+
+    box.append(message, button);
+    return box;
+}
+
 function openModal(title, content) {
     let modal = document.querySelector(".modal");
 
@@ -205,6 +483,18 @@ function setUpEnquiryForm() {
     const message = document.getElementById("message");
 
     if (dateInput) dateInput.min = todayAsISO();
+
+    const params = new URLSearchParams(location.search);
+    const requestedService = params.get("service");
+    const requestedPackage = params.get("package");
+
+    if (requestedService && Array.from(serviceSelect.options).some((option) => option.value === requestedService)) {
+        serviceSelect.value = requestedService;
+    }
+
+    if (requestedPackage && message) {
+        message.value = "I am interested in the " + requestedPackage + " package.";
+    }
 
     if (message) addCharacterCounter(message, 500);
 
@@ -351,78 +641,4 @@ function showOpeningStatus() {
     let isOpen = false;
     let statusText = "Closed now";
 
-    table.querySelectorAll("tbody tr").forEach((row) => {
-        const dayCell = row.cells[0];
-        const hoursCell = row.cells[1];
-        if (dayCell.textContent.trim() !== today) return;
-
-        row.classList.add("today");
-        const badge = document.createElement("span");
-        badge.className = "today-badge";
-        badge.textContent = "Today";
-        dayCell.appendChild(badge);
-
-        const times = hoursCell.textContent.match(/(\d{2}):(\d{2})\s*[–-]\s*(\d{2}):(\d{2})/);
-        if (!times) return;
-
-        const opens = Number(times[1]) * 60 + Number(times[2]);
-        const closes = Number(times[3]) * 60 + Number(times[4]);
-
-        if (minutesNow >= opens && minutesNow < closes) {
-            isOpen = true;
-            statusText = "Open now – closes at " + times[3] + ":" + times[4];
-        } else if (minutesNow < opens) {
-            statusText = "Closed now – opens today at " + times[1] + ":" + times[2];
-        }
-    });
-
-    const status = document.createElement("p");
-    status.className = "opening-status " + (isOpen ? "open" : "closed");
-    status.textContent = statusText;
-    table.before(status);
-}
-
-function setUpScrollReveal() {
-    if (reduceMotion || !("IntersectionObserver" in window)) return;
-
-    const targets = document.querySelectorAll("main > section, main > form, main > .tabs");
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add("is-visible");
-                observer.unobserve(entry.target);
-            }
-        });
-    }, { threshold: 0.1 });
-
-    targets.forEach((target) => {
-        target.classList.add("reveal");
-        observer.observe(target);
-    });
-}
-
-function addBackToTopButton() {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "back-to-top";
-    button.setAttribute("aria-label", "Back to top");
-    button.textContent = "↑";
-    document.body.appendChild(button);
-
-    window.addEventListener("scroll", () => {
-        button.classList.toggle("show", window.scrollY > 400);
-    }, { passive: true });
-
-    button.addEventListener("click", () => {
-        window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
-    });
-}
-
-function updateFooterYear() {
-    document.querySelectorAll("footer p").forEach((paragraph) => {
-        if (paragraph.textContent.includes("©")) {
-            paragraph.textContent = paragraph.textContent.replace(/\d{4}/, new Date().getFullYear());
-        }
-    });
-}
+    table.querySelectorAll("tbody tr").forEach((row) =>
