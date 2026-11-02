@@ -44,14 +44,14 @@
         <h2>Make an Enquiry</h2>
 
         <p>
-            Please complete the form below if you would like
-            more information about GreenGlow Cleaning Co.
-            or would like to request a cleaning quotation.
+            Complete the form below to get an instant cost
+            estimate and check availability for your
+            preferred date.
         </p>
 
 
 
-        <form action="#" method="post">
+        <form id="enquiry-form" action="#" method="post" novalidate>
 
             <fieldset>
 
@@ -72,6 +72,8 @@
                         type="text"
                         id="name"
                         name="name"
+                        autocomplete="name"
+                        maxlength="60"
                         required
                     >
 
@@ -90,6 +92,8 @@
                         type="email"
                         id="email"
                         name="email"
+                        autocomplete="email"
+                        maxlength="100"
                         required
                     >
 
@@ -99,7 +103,7 @@
                 <p>
 
                     <label for="phone">
-                        Telephone Number:
+                        Telephone Number <span class="optional">(optional)</span>:
                     </label>
 
                     <br>
@@ -108,6 +112,8 @@
                         type="tel"
                         id="phone"
                         name="phone"
+                        autocomplete="tel"
+                        maxlength="20"
                     >
 
                 </p>
@@ -133,7 +139,7 @@
 
                     <br>
 
-                    <select id="service" name="service">
+                    <select id="service" name="service" required>
 
                         <option value="">
                             Please select a service
@@ -160,6 +166,83 @@
                 </p>
 
 
+                <p id="package-field">
+
+                    <label for="package">
+                        Package:
+                    </label>
+
+                    <br>
+
+                    <select id="package" name="package" required disabled>
+
+                        <option value="">
+                            Choose a service first
+                        </option>
+
+                    </select>
+
+                </p>
+
+
+                <p>
+
+                    <label for="size">
+                        Size of the Space:
+                    </label>
+
+                    <br>
+
+                    <select id="size" name="size" required>
+
+                        <option value="">
+                            Please select
+                        </option>
+
+                        <option value="small">
+                            Small (up to 60 m²)
+                        </option>
+
+                        <option value="medium">
+                            Medium (60 to 150 m²)
+                        </option>
+
+                        <option value="large">
+                            Large (over 150 m²)
+                        </option>
+
+                    </select>
+
+                </p>
+
+
+                <p>
+
+                    <label for="area">
+                        Area:
+                    </label>
+
+                    <br>
+
+                    <select id="area" name="area" required>
+
+                        <option value="">
+                            Please select
+                        </option>
+
+                        <option value="cape-town">
+                            Cape Town
+                        </option>
+
+                        <option value="stellenbosch">
+                            Stellenbosch
+                        </option>
+
+                    </select>
+
+                </p>
+
+
                 <p>
 
                     <label for="date">
@@ -172,7 +255,40 @@
                         type="date"
                         id="date"
                         name="date"
+                        aria-describedby="date-hint"
+                        required
                     >
+
+                    <small id="date-hint" class="field-hint">
+                        Monday to Friday 08:00 to 17:00, Saturday 09:00 to 13:00. Closed on Sundays.
+                    </small>
+
+                </p>
+
+
+                <p>
+
+                    <label for="time">
+                        Preferred Start Time:
+                    </label>
+
+                    <br>
+
+                    <select id="time" name="time" required>
+
+                        <option value="">
+                            Please select
+                        </option>
+
+                        <option value="morning">
+                            Morning (from 08:00)
+                        </option>
+
+                        <option value="afternoon">
+                            Afternoon (from 12:00)
+                        </option>
+
+                    </select>
 
                 </p>
 
@@ -188,6 +304,7 @@
                     <select
                         id="frequency"
                         name="frequency"
+                        required
                     >
 
                         <option value="">
@@ -230,7 +347,7 @@
                 <p>
 
                     <label for="message">
-                        Tell us about your cleaning requirements:
+                        Tell us about your cleaning requirements <span class="optional">(optional)</span>:
                     </label>
 
                     <br>
