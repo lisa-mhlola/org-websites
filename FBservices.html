@@ -143,6 +143,111 @@
         </section>
 
 
+        <section id="service-finder">
+
+            <h2>Find a Cleaning Package</h2>
+
+            <p>
+                Search our cleaning packages, filter them by type
+                and sort them by price, duration or name.
+            </p>
+
+            <div class="service-controls">
+
+                <p>
+
+                    <label for="service-search">
+                        Search:
+                    </label>
+
+                    <br>
+
+                    <input
+                        type="search"
+                        id="service-search"
+                        placeholder="e.g. kitchen, office, move-out"
+                        autocomplete="off"
+                    >
+
+                </p>
+
+                <p>
+
+                    <label for="service-category">
+                        Type:
+                    </label>
+
+                    <br>
+
+                    <select id="service-category">
+
+                        <option value="all">
+                            All services
+                        </option>
+
+                        <option value="home">
+                            Home Cleaning
+                        </option>
+
+                        <option value="office">
+                            Office Cleaning
+                        </option>
+
+                        <option value="deep">
+                            Deep Cleaning
+                        </option>
+
+                    </select>
+
+                </p>
+
+                <p>
+
+                    <label for="service-sort">
+                        Sort by:
+                    </label>
+
+                    <br>
+
+                    <select id="service-sort">
+
+                        <option value="recommended">
+                            Recommended
+                        </option>
+
+                        <option value="price-low">
+                            Price: low to high
+                        </option>
+
+                        <option value="price-high">
+                            Price: high to low
+                        </option>
+
+                        <option value="duration">
+                            Duration: shortest first
+                        </option>
+
+                        <option value="name">
+                            Name: A to Z
+                        </option>
+
+                    </select>
+
+                </p>
+
+            </div>
+
+            <p id="service-count" class="service-count" aria-live="polite"></p>
+
+            <div id="service-list" class="service-list"></div>
+
+            <button type="button" id="load-more" class="load-more" hidden>
+                Load more
+            </button>
+
+        </section>
+
+
         <hr>
 
 
