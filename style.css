@@ -494,8 +494,11 @@ nav a.active {
 }
 
 .modal-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.5rem;
     padding: 0 1.5rem 1.5rem;
-    text-align: right;
 }
 
 .modal-close {
@@ -811,6 +814,187 @@ mark {
         display: none;
     }
 
+.optional {
+    color: #587060;
+    font-weight: normal;
+}
+
+.field-hint {
+    display: block;
+    margin-top: 0.35rem;
+    color: #587060;
+    font-size: 0.85rem;
+}
+
+.error-message {
+    display: block;
+    margin-top: 0.35rem;
+    color: #b42318;
+    font-size: 0.85rem;
+    font-weight: bold;
+    animation: fadeIn 0.2s ease;
+}
+
+input[aria-invalid="true"],
+select[aria-invalid="true"],
+textarea[aria-invalid="true"] {
+    border-color: #b42318;
+    background-color: #fff7f6;
+}
+
+    input[aria-invalid="true"]:focus,
+    select[aria-invalid="true"]:focus,
+    textarea[aria-invalid="true"]:focus {
+        border-color: #b42318;
+        outline-color: rgba(180, 35, 24, 0.25);
+    }
+
+select:disabled {
+    color: #8a9a8f;
+    background-color: #eef2ef;
+    cursor: not-allowed;
+}
+
+.form-status {
+    max-width: none;
+    margin: 0 0 1.25rem;
+    padding: 0.85rem 1rem;
+    border-left: 0.3rem solid #2f7d52;
+    border-radius: 0.4rem;
+    color: #1f5d3c;
+    background-color: #dcefe2;
+    font-weight: bold;
+}
+
+.estimate-ref {
+    margin: 0 0 1rem;
+    color: #587060;
+    font-size: 0.85rem;
+}
+
+.estimate-price {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 1.25rem;
+    border-radius: 0.6rem;
+    background-color: #f0f6f1;
+}
+
+    .estimate-price span {
+        color: #587060;
+        font-size: 0.85rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+    }
+
+    .estimate-price strong {
+        color: #1f5d3c;
+        font-size: 2rem;
+        line-height: 1.2;
+    }
+
+    .estimate-price small {
+        color: #587060;
+    }
+
+.availability {
+    margin-top: 1rem;
+    padding: 0.85rem 1rem;
+    border-left: 0.3rem solid;
+    border-radius: 0.4rem;
+}
+
+    .availability p {
+        margin: 0.25rem 0 0;
+    }
+
+    .availability.available {
+        color: #1f5d3c;
+        background-color: #dcefe2;
+        border-color: #2f7d52;
+    }
+
+    .availability.limited {
+        color: #7a4b12;
+        background-color: #fbf0dc;
+        border-color: #b7791f;
+    }
+
+    .availability.unavailable {
+        color: #8a1c13;
+        background-color: #fde8e6;
+        border-color: #b42318;
+    }
+
+.estimate-note {
+    margin: 1rem 0 0;
+    color: #587060;
+    font-size: 0.9rem;
+}
+
+.email-headers {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.25rem 0.75rem;
+    margin: 0 0 0.75rem;
+}
+
+    .email-headers dt {
+        color: #587060;
+        font-weight: bold;
+    }
+
+    .email-headers dd {
+        margin: 0;
+        overflow-wrap: anywhere;
+    }
+
+.email-body {
+    max-height: 15rem;
+    margin: 0;
+    padding: 0.85rem 1rem;
+    overflow: auto;
+    border: 1px solid #d8e4da;
+    border-radius: 0.4rem;
+    background-color: #f8fbf8;
+    font-family: inherit;
+    font-size: 0.9rem;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.button-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.7rem 1.2rem;
+    border-radius: 0.4rem;
+    color: white;
+    background-color: #2f7d52;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+    .button-link:hover,
+    .button-link:focus {
+        color: white;
+        background-color: #1f5d3c;
+    }
+
+.button-secondary {
+    margin: 0;
+    color: #24613f;
+    background-color: white;
+    border: 1px solid #c8d7cc;
+}
+
+    .button-secondary:hover,
+    .button-secondary:focus {
+        color: white;
+        background-color: #2f7d52;
+    }
+
 @media (max-width: 700px) {
     .service-controls {
         grid-template-columns: 1fr;
@@ -819,6 +1003,10 @@ mark {
 
     .load-more {
         width: 100%;
+    }
+
+    .modal-footer > * {
+        flex: 1 1 100%;
     }
 }
 
